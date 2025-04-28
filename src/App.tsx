@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Menu, Plus, Search, Folder, FileText, ChevronLeft, ChevronRight } from "lucide-react";
-import { NoteEditor } from "./components/NoteEditor";
+import NoteEditor from "./components/NoteEditor";
 import { Sidebar } from "./components/Sidebar";
 import { NotesList } from "./components/NotesList";
 import "./index.css";
