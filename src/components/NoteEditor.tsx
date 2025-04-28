@@ -5,9 +5,6 @@ import StarterKit from "@tiptap/starter-kit";
 import { Bold, Italic, Heading, List, ListOrdered } from "lucide-react";
 import { Note } from "../App";
 
-const toolbarButton =
-  "p-2 rounded-md hover:bg-indigo-100 transition-colors duration-150 flex items-center justify-center text-indigo-600";
-
 interface NoteEditorProps {
   note: Note;
   onChange: (updated: Note) => void;
@@ -90,9 +87,9 @@ export default function NoteEditor({ note, onChange }: NoteEditorProps) {
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto bg-gradient-to-br from-indigo-50 to-white rounded-2xl shadow-xl p-6 mt-8">
+    <div className="w-full max-w-2xl mx-auto bg-gradient-to-br from-indigo-50 to-white rounded-2xl shadow-2xl p-8 mt-8 border border-indigo-100">
       <input
-        className="w-full text-2xl font-bold bg-transparent outline-none border-b-2 border-indigo-100 focus:border-indigo-400 transition mb-4 px-2 py-1"
+        className="w-full text-3xl font-bold bg-transparent outline-none border-b-2 border-indigo-100 focus:border-indigo-400 transition mb-6 px-2 py-2 placeholder-gray-400"
         value={title}
         onChange={handleTitleChange}
         placeholder="Untitled"
@@ -100,11 +97,11 @@ export default function NoteEditor({ note, onChange }: NoteEditorProps) {
         spellCheck={true}
         autoFocus
       />
-      <div className="flex gap-2 mb-4 bg-white rounded-lg shadow-sm px-2 py-1">
-        {actions.map((action, idx) => (
+      <div className="flex gap-2 mb-6 bg-white rounded-lg shadow px-3 py-2 border border-indigo-100">
+        {actions.map((action) => (
           <button
             key={action.label}
-            className={`${toolbarButton} ${
+            className={`p-2 rounded-md hover:bg-indigo-100 transition-colors duration-150 flex items-center justify-center text-indigo-600 ${
               action.isActive?.() ? "bg-indigo-200 text-indigo-800" : ""
             }`}
             onClick={action.onClick}
@@ -116,7 +113,9 @@ export default function NoteEditor({ note, onChange }: NoteEditorProps) {
           </button>
         ))}
       </div>
-      <EditorContent editor={editor} />
+      <div className="bg-white rounded-lg shadow-inner border border-indigo-50 transition-all duration-200">
+        <EditorContent editor={editor} />
+      </div>
     </div>
   );
 }
