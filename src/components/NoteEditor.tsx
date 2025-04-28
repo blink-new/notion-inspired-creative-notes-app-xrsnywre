@@ -3,22 +3,27 @@ import React, { useEffect, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Bold, Italic, Heading, List, ListOrdered } from "lucide-react";
+import { Note } from "../App";
 
 const toolbarButton =
   "p-2 rounded-md hover:bg-indigo-100 transition-colors duration-150 flex items-center justify-center text-indigo-600";
 
-export default function NoteEditor({
-  content,
-  onChange,
-}: {
-  content: string;
-  onChange: (value: string) => void;
-}) {
+interface NoteEditorProps {
+  note: Note;
+  onChange: (updated: Note) => void;
+}
+
+export default function NoteEditor({ note, onChange }: NoteEditorProps) {
+  const [title, setTitle] = useState(note.title);
+
   const editor = useEditor({
     extensions: [StarterKit],
-    content,
+    content: note.content,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      onChange({
+        ...note,
+        content: editor.getHTML(),
+      });
     },
     editorProps: {
       attributes: {
@@ -62,15 +67,39 @@ export default function NoteEditor({
     },
   ];
 
+  // Keep title in sync with note prop
   useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
-      editor.commands.setContent(content);
+    setTitle(note.title);
+    // eslint-disable-next-line
+  }, [note.id]);
+
+  // Keep editor content in sync with note prop
+  useEffect(() => {
+    if (editor && note.content !== editor.getHTML()) {
+      editor.commands.setContent(note.content);
     }
     // eslint-disable-next-line
-  }, [content]);
+  }, [note.id, note.content]);
+
+  function handleTitleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setTitle(e.target.value);
+    onChange({
+      ...note,
+      title: e.target.value,
+    });
+  }
 
   return (
     <div className="w-full max-w-2xl mx-auto bg-gradient-to-br from-indigo-50 to-white rounded-2xl shadow-xl p-6 mt-8">
+      <input
+        className="w-full text-2xl font-bold bg-transparent outline-none border-b-2 border-indigo-100 focus:border-indigo-400 transition mb-4 px-2 py-1"
+        value={title}
+        onChange={handleTitleChange}
+        placeholder="Untitled"
+        maxLength={100}
+        spellCheck={true}
+        autoFocus
+      />
       <div className="flex gap-2 mb-4 bg-white rounded-lg shadow-sm px-2 py-1">
         {actions.map((action, idx) => (
           <button
