@@ -1,140 +1,93 @@
 
-import React, { useEffect, useRef, useState } from "react";
-import { Note } from "../App";
+import React, { useEffect, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { Bold, Italic, Heading, List, ListOrdered, Save } from "lucide-react";
-import clsx from "clsx";
+import { Bold, Italic, Heading, List, ListOrdered } from "lucide-react";
 
-interface NoteEditorProps {
-  note: Note;
-  onChange: (note: Note) => void;
-}
+const toolbarButton =
+  "p-2 rounded-md hover:bg-indigo-100 transition-colors duration-150 flex items-center justify-center text-indigo-600";
 
-export function NoteEditor({ note, onChange }: NoteEditorProps) {
-  const [title, setTitle] = useState(note.title);
-
+export default function NoteEditor({
+  content,
+  onChange,
+}: {
+  content: string;
+  onChange: (value: string) => void;
+}) {
   const editor = useEditor({
     extensions: [StarterKit],
-    content: note.content,
+    content,
     onUpdate: ({ editor }) => {
-      onChange({ ...note, content: editor.getHTML() });
+      onChange(editor.getHTML());
     },
     editorProps: {
       attributes: {
         class:
-          "prose max-w-none min-h-[300px] outline-none px-0 py-2 text-gray-800 bg-transparent",
+          "prose prose-indigo max-w-none min-h-[300px] bg-white rounded-lg p-4 shadow-inner focus:outline-none transition-all duration-200",
       },
     },
   });
 
-  // Update editor content if note changes
+  // Toolbar actions
+  const actions = [
+    {
+      icon: <Bold size={18} />,
+      label: "Bold",
+      onClick: () => editor?.chain().focus().toggleBold().run(),
+      isActive: () => editor?.isActive("bold"),
+    },
+    {
+      icon: <Italic size={18} />,
+      label: "Italic",
+      onClick: () => editor?.chain().focus().toggleItalic().run(),
+      isActive: () => editor?.isActive("italic"),
+    },
+    {
+      icon: <Heading size={18} />,
+      label: "Heading",
+      onClick: () => editor?.chain().focus().toggleHeading({ level: 2 }).run(),
+      isActive: () => editor?.isActive("heading", { level: 2 }),
+    },
+    {
+      icon: <List size={18} />,
+      label: "Bullet List",
+      onClick: () => editor?.chain().focus().toggleBulletList().run(),
+      isActive: () => editor?.isActive("bulletList"),
+    },
+    {
+      icon: <ListOrdered size={18} />,
+      label: "Ordered List",
+      onClick: () => editor?.chain().focus().toggleOrderedList().run(),
+      isActive: () => editor?.isActive("orderedList"),
+    },
+  ];
+
   useEffect(() => {
-    setTitle(note.title);
-    if (editor && editor.getHTML() !== note.content) {
-      editor.commands.setContent(note.content || "");
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content);
     }
     // eslint-disable-next-line
-  }, [note.id]);
-
-  function handleTitleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setTitle(e.target.value);
-    onChange({ ...note, title: e.target.value });
-  }
-
-  // Formatting actions
-  function format(action: string) {
-    if (!editor) return;
-    switch (action) {
-      case "bold":
-        editor.chain().focus().toggleBold().run();
-        break;
-      case "italic":
-        editor.chain().focus().toggleItalic().run();
-        break;
-      case "heading":
-        editor.chain().focus().toggleHeading({ level: 2 }).run();
-        break;
-      case "bulletList":
-        editor.chain().focus().toggleBulletList().run();
-        break;
-      case "orderedList":
-        editor.chain().focus().toggleOrderedList().run();
-        break;
-      default:
-        break;
-    }
-  }
+  }, [content]);
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <input
-        className="w-full text-2xl font-bold mb-2 px-2 py-1 rounded bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-300 transition"
-        value={title}
-        onChange={handleTitleChange}
-        placeholder="Title"
-        maxLength={80}
-      />
-      <div className="flex items-center gap-2 mb-3">
-        <button
-          className={clsx(
-            "p-2 rounded hover:bg-indigo-100 transition",
-            editor?.isActive("bold") && "bg-indigo-200"
-          )}
-          onClick={() => format("bold")}
-          type="button"
-          aria-label="Bold"
-        >
-          <Bold size={18} />
-        </button>
-        <button
-          className={clsx(
-            "p-2 rounded hover:bg-indigo-100 transition",
-            editor?.isActive("italic") && "bg-indigo-200"
-          )}
-          onClick={() => format("italic")}
-          type="button"
-          aria-label="Italic"
-        >
-          <Italic size={18} />
-        </button>
-        <button
-          className={clsx(
-            "p-2 rounded hover:bg-indigo-100 transition",
-            editor?.isActive("heading", { level: 2 }) && "bg-indigo-200"
-          )}
-          onClick={() => format("heading")}
-          type="button"
-          aria-label="Heading"
-        >
-          <Heading size={18} />
-        </button>
-        <button
-          className={clsx(
-            "p-2 rounded hover:bg-indigo-100 transition",
-            editor?.isActive("bulletList") && "bg-indigo-200"
-          )}
-          onClick={() => format("bulletList")}
-          type="button"
-          aria-label="Bullet List"
-        >
-          <List size={18} />
-        </button>
-        <button
-          className={clsx(
-            "p-2 rounded hover:bg-indigo-100 transition",
-            editor?.isActive("orderedList") && "bg-indigo-200"
-          )}
-          onClick={() => format("orderedList")}
-          type="button"
-          aria-label="Ordered List"
-        >
-          <ListOrdered size={18} />
-        </button>
+    <div className="w-full max-w-2xl mx-auto bg-gradient-to-br from-indigo-50 to-white rounded-2xl shadow-xl p-6 mt-8">
+      <div className="flex gap-2 mb-4 bg-white rounded-lg shadow-sm px-2 py-1">
+        {actions.map((action, idx) => (
+          <button
+            key={action.label}
+            className={`${toolbarButton} ${
+              action.isActive?.() ? "bg-indigo-200 text-indigo-800" : ""
+            }`}
+            onClick={action.onClick}
+            aria-label={action.label}
+            type="button"
+            tabIndex={0}
+          >
+            {action.icon}
+          </button>
+        ))}
       </div>
-      <div className="rounded border bg-white shadow-sm px-3 py-2 min-h-[300px] transition">
-        <EditorContent editor={editor} />
-      </div>
+      <EditorContent editor={editor} />
     </div>
   );
 }
